@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identifying Verb Types Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .transition-all { transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex items-center justify-center p-4">
+
+    <div id="quiz-container" class="w-full max-w-xl">
+        <!-- Progress Section -->
+        <div class="flex justify-between items-end mb-4 px-1">
+            <span id="progress-text" class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Question 1 of 10</span>
+            <span id="score-badge" class="text-sm font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">Score: 0</span>
+        </div>
+        
+        <div class="w-full bg-slate-200 h-2 rounded-full mb-8 overflow-hidden">
+            <div id="progress-bar" class="bg-blue-500 h-full transition-all duration-500" style="width: 10%"></div>
+        </div>
+
+        <!-- Question Card -->
+        <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+            <div class="p-8 text-center bg-white">
+                <h3 class="text-2xl font-medium leading-relaxed mb-2">Identify the type of verb:</h3>
+                <div id="sentence-display" class="text-3xl font-bold text-blue-700 py-4 px-6 bg-blue-50 rounded-xl inline-block mt-2">
+                    <!-- Sentence injected here -->
+                </div>
+            </div>
+
+            <div id="options-container" class="px-8 pb-8 flex flex-col gap-3">
+                <!-- Buttons injected here -->
+            </div>
+
+            <!-- Feedback Area (Hidden by default) -->
+            <div id="feedback-area" class="hidden p-6 border-t-2">
+                <p id="feedback-text" class="font-medium text-slate-800"></p>
+                <button id="next-btn" class="mt-4 flex items-center justify-center gap-2 w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-6 rounded-xl transition-all">
+                    Next Question 
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+            </div>
+
+            <!-- Hint Area -->
+            <div id="hint-wrapper" class="px-8 pb-6 flex flex-col items-center">
+                <button id="hint-toggle" class="flex items-center gap-2 text-slate-400 hover:text-blue-500 text-sm font-medium transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+                    Need a hint?
+                </button>
+                <div id="hint-text" class="hidden mt-4 w-full p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-800 text-sm"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Screen (Hidden by default) -->
+    <div id="result-screen" class="hidden flex flex-col items-center justify-center min-h-screen p-6 text-center">
+        <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full border border-slate-200">
+            <h2 class="text-3xl font-bold text-slate-800 mb-4">Quiz Complete!</h2>
+            <div id="final-score" class="text-6xl font-extrabold text-blue-600 mb-4">0/10</div>
+            <p id="result-msg" class="text-slate-600 mb-8 italic"></p>
+            <button id="restart-btn" class="flex items-center justify-center w-full gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                Try Again
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const questionPool = [
+            // Action Verbs
+            { sentence: "The athlete RAN across the finish line.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Running is a physical activity.", hint: "Is the subject moving?" },
+            { sentence: "She THOUGHT about the answer for a long time.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Thinking is a mental action.", hint: "Action verbs can be mental processes too." },
+            { sentence: "The dog BARKED at the mail carrier.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Barking is an action the dog is performing.", hint: "What is the dog doing?" },
+            { sentence: "We BAKED cookies for the school fair.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Baking is a physical process.", hint: "Is something being made through an action?" },
+            { sentence: "He KICKED the ball into the net.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Kicking is a physical movement.", hint: "Is there physical contact involved?" },
+            { sentence: "The birds FLEW south for the winter.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Flying is an action.", hint: "What are the birds doing?" },
+            { sentence: "Sarah WROTE a beautiful poem.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Writing is a physical/mental activity.", hint: "Is the subject creating something?" },
+            { sentence: "The students LISTENED to the teacher.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Listening is an active process.", hint: "Is the subject paying attention actively?" },
+            { sentence: "He ATE a giant slice of pizza.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Eating is a physical action.", hint: "Is the subject consuming something?" },
+            { sentence: "The rain FELL steadily all night.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Falling is the action of the rain.", hint: "What did the rain do?" },
+            { sentence: "They DANCED at the wedding.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Dancing is a physical activity.", hint: "Are they moving to music?" },
+            { sentence: "The team WON the championship game.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Winning is the result of an action/competition.", hint: "What did the team achieve?" },
+            { sentence: "I READ three books this month.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Reading is a mental action.", hint: "Is the subject processing text?" },
+            { sentence: "The sun SHINES brightly today.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Shining is what the sun is doing.", hint: "What is the sun's activity?" },
+            { sentence: "The cat CHASED the laser pointer.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Chasing is a physical action.", hint: "What is the cat doing to the dot?" },
+            { sentence: "Mom LAUGHED at my joke.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Laughing is an action.", hint: "What was the reaction?" },
+            { sentence: "We BUILT a sandcastle on the beach.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Building is a physical action.", hint: "Were hands used to make something?" },
+            { sentence: "The phone RANG during dinner.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Ringing is the action of the phone.", hint: "What sound did the phone make?" },
+            { sentence: "He PAINTED the fence white.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Painting is a physical action.", hint: "Is a surface being covered by a subject's work?" },
+            { sentence: "She CLIMBED to the top of the hill.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Climbing is a physical action.", hint: "Is the subject moving upward?" },
+            { sentence: "The scientist DISCOVERED a new planet.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Discovering is an action.", hint: "What did the subject find?" },
+            { sentence: "I CLEANED my room on Saturday.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Cleaning is a physical action.", hint: "What did the subject do to the room?" },
+            { sentence: "They SWAM in the lake.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Swimming is an action.", hint: "What are they doing in the water?" },
+            { sentence: "The wind BLEW the leaves away.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Blowing is the action of the wind.", hint: "What is the wind doing?" },
+            { sentence: "He DRANK a glass of water.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Drinking is a physical action.", hint: "Is the subject swallowing something?" },
+            { sentence: "The fire GLOWED in the dark.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Glowing is the action/state of the fire.", hint: "What is the fire doing?" },
+            { sentence: "She SANG her favorite song.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Singing is an action.", hint: "What is she doing with her voice?" },
+            { sentence: "The gardener PLANTED the roses.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Planting is a physical action.", hint: "What did the subject put in the dirt?" },
+            { sentence: "The kids PLAYED outside all day.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Playing is an action.", hint: "What were the kids doing?" },
+            { sentence: "I FORGOT my lunch at home.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Forgetting is a mental action.", hint: "What happened in the subject's mind?" },
+            { sentence: "The star TWINKLED in the night sky.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Twinkling is the action of the star.", hint: "What is the star doing?" },
+            { sentence: "He DROVE the car to the store.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Driving is an action.", hint: "How did he move the car?" },
+            { sentence: "The baker KNEADED the dough.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Kneading is a physical action.", hint: "What is being done to the bread?" },
+            { sentence: "We WATCHED the movie together.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 0, rationale: "Watching is an action.", hint: "What were they doing with their eyes?" },
+
+            // Helping Verbs
+            { sentence: "I AM going to the park.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'AM' helps the main verb 'going'.", hint: "Is there another verb coming right after?" },
+            { sentence: "She HAS been working hard.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'HAS' helps the verb 'been'.", hint: "Is this word assisting a main verb?" },
+            { sentence: "They WERE laughing at the movie.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'WERE' helps 'laughing' show past tense.", hint: "Is 'laughing' the main action?" },
+            { sentence: "We SHOULD call our grandmother.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'SHOULD' is a modal helping verb.", hint: "Does this word show necessity for 'call'?" },
+            { sentence: "He COULD win the race.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'COULD' helps 'win' show possibility.", hint: "Does this show the ability to 'win'?" },
+            { sentence: "The cake WAS eaten by the guests.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'WAS' helps 'eaten' in passive voice.", hint: "Is 'eaten' the main action?" },
+            { sentence: "I DO like spinach.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'DO' helps emphasize the verb 'like'.", hint: "Is it adding emphasis to 'like'?" },
+            { sentence: "You MUST finish your dinner.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'MUST' helps 'finish'.", hint: "Is there a requirement for another action?" },
+            { sentence: "They MIGHT arrive late.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'MIGHT' helps 'arrive'.", hint: "Does it show the chance of 'arriving'?" },
+            { sentence: "We ARE studying for the test.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'ARE' helps 'studying'.", hint: "Is 'studying' the main activity?" },
+            { sentence: "She WILL sing a song tonight.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'WILL' helps 'sing' show future tense.", hint: "Does it point to a future action?" },
+            { sentence: "I HAVE seen that movie before.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'HAVE' helps 'seen'.", hint: "Is 'seen' the main verb here?" },
+            { sentence: "The mail HAD already arrived.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'HAD' helps 'arrived'.", hint: "Is there a past action being helped?" },
+            { sentence: "He DOES know the answer.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'DOES' helps 'know'.", hint: "Is it assisting the verb 'know'?" },
+            { sentence: "They WOULD enjoy the show.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'WOULD' helps 'enjoy'.", hint: "Does it show a condition for 'enjoy'?" },
+            { sentence: "You SHOULDN'T eat that much candy.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'SHOULDN'T' (should not) helps 'eat'.", hint: "Is it advising against an action?" },
+            { sentence: "The game HAS started.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'HAS' helps 'started'.", hint: "Does it help show 'started' is finished?" },
+            { sentence: "I SHALL return soon.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'SHALL' helps 'return'.", hint: "Does it show future intent for 'return'?" },
+            { sentence: "He IS helping his sister.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "The first 'IS' helps the main action 'helping'.", hint: "Is there an -ing verb following it?" },
+            { sentence: "They CAN hear the music.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'CAN' helps 'hear'.", hint: "Does it show ability to 'hear'?" },
+            { sentence: "We WERE traveling all day.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'WERE' helps 'traveling'.", hint: "Is it showing a continuous past action?" },
+            { sentence: "It MAY rain tomorrow.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'MAY' helps 'rain'.", hint: "Does it show the possibility of 'rain'?" },
+            { sentence: "She WAS painting a portrait.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'WAS' helps 'painting'.", hint: "Is 'painting' the primary action?" },
+            { sentence: "The car HAD been fixed.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'HAD' helps the verb phrase 'been fixed'.", hint: "Is it part of a long verb chain?" },
+            { sentence: "I DO want to go.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'DO' helps 'want'.", hint: "Is it emphasizing the desire?" },
+            { sentence: "They DID finish early.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'DID' helps 'finish'.", hint: "Did it help show a completed action?" },
+            { sentence: "We WOULD have gone if invited.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'WOULD' helps 'gone'.", hint: "Is it part of a 'would have' structure?" },
+            { sentence: "He IS being very quiet.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "The first 'IS' helps 'being' (linking verb).", hint: "Is it assisting another form of 'to be'?" },
+            { sentence: "I AM feeling much better.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'AM' helps 'feeling'.", hint: "Is it helping the verb 'feeling'?" },
+            { sentence: "They HAVE been waiting for hours.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 1, rationale: "'HAVE' helps the phrase 'been waiting'.", hint: "Is it helping a long action?" },
+
+            // Linking Verbs
+            { sentence: "The sky IS very blue.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'IS' links 'sky' to 'blue'.", hint: "Can you swap 'IS' for an '=' sign?" },
+            { sentence: "The pizza SMELLS amazing.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "The pizza isn't 'doing' the smelling.", hint: "Is the subject being described?" },
+            { sentence: "She BECOME a doctor.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'BECOME' links the subject to a noun.", hint: "Does it show a change in state?" },
+            { sentence: "The milk TASTES sour.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "The milk isn't 'doing' anything.", hint: "Is 'sour' describing the milk?" },
+            { sentence: "He LOOKS tired today.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'LOOKS' describes his appearance.", hint: "Is 'tired' a description of 'He'?" },
+            { sentence: "The music SOUNDS too loud.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'SOUNDS' links 'music' to 'loud'.", hint: "Is the music performing an action?" },
+            { sentence: "They WERE happy about the news.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'WERE' links 'They' to 'happy'.", hint: "Does it connect the subject to a feeling?" },
+            { sentence: "The water FEELS cold.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'FEELS' describes the water's state.", hint: "Is 'cold' a quality of the water?" },
+            { sentence: "I AM a student.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'AM' links 'I' to 'student'.", hint: "Does it define who the subject is?" },
+            { sentence: "The leaves TURNED brown in October.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'TURNED' shows a change in appearance.", hint: "Did the subject's color change?" },
+            { sentence: "The soup STAYED hot for a long time.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'STAYED' links 'soup' to 'hot'.", hint: "Did the subject remain in a state?" },
+            { sentence: "He SEEMS like a nice person.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'SEEMS' links 'He' to the description.", hint: "Is it about an impression?" },
+            { sentence: "The crowd GREW restless.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'GREW' links 'crowd' to 'restless'.", hint: "Did the crowd become something else?" },
+            { sentence: "The cookies APPEAR ready.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'APPEAR' links 'cookies' to 'ready'.", hint: "Is it about how the cookies look?" },
+            { sentence: "I WAS very thirsty.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'WAS' links 'I' to 'thirsty'.", hint: "Does it describe a state of being?" },
+            { sentence: "The dog REMAINED calm.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'REMAINED' links 'dog' to 'calm'.", hint: "Did the dog stay in a certain state?" },
+            { sentence: "The ocean LOOKED calm from the shore.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'LOOKED' links 'ocean' to 'calm'.", hint: "Is 'calm' describing the ocean?" },
+            { sentence: "She FEELS excited for the trip.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'FEELS' links 'She' to 'excited'.", hint: "Is 'excited' her internal state?" },
+            { sentence: "The task PROVED difficult.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'PROVED' links 'task' to 'difficult'.", hint: "Did the task turn out to be something?" },
+            { sentence: "He IS my best friend.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'IS' links 'He' to 'friend'.", hint: "Does it identify who 'He' is?" },
+            { sentence: "The coffee SMELLS fresh.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'SMELLS' links 'coffee' to 'fresh'.", hint: "Is 'fresh' a description of the coffee?" },
+            { sentence: "The weather BECOMES colder at night.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'BECOMES' shows a transition.", hint: "Is there a change in state?" },
+            { sentence: "You ARE very kind.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'ARE' links 'You' to 'kind'.", hint: "Is 'kind' a quality of 'You'?" },
+            { sentence: "The movie WAS boring.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'WAS' links 'movie' to 'boring'.", hint: "Is 'boring' describing the movie?" },
+            { sentence: "His story SOUNDS true.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'SOUNDS' links 'story' to 'true'.", hint: "Is 'true' a quality of the story?" },
+            { sentence: "The fruit GREW ripe on the vine.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'GREW' links 'fruit' to 'ripe'.", hint: "Did the fruit change to a ripe state?" },
+            { sentence: "I FEEL dizzy.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'FEEL' links 'I' to 'dizzy'.", hint: "Is 'dizzy' a state of the subject?" },
+            { sentence: "The mountain APPEARED distant.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'APPEARED' links 'mountain' to 'distant'.", hint: "Is it about how the mountain looked?" },
+            { sentence: "They ARE the winners.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'ARE' links 'They' to 'winners'.", hint: "Does it rename the subject?" },
+            { sentence: "The room SMELLED of lavender.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'SMELLED' links the room to the scent.", hint: "Is the room performing an action?" },
+            { sentence: "She REMAINED silent during the movie.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'REMAINED' links 'She' to 'silent'.", hint: "Did she stay in a certain state?" },
+            { sentence: "The bread TASTED stale.", options: ["Action Verb", "Helping Verb", "Linking Verb"], correct: 2, rationale: "'TASTED' links 'bread' to 'stale'.", hint: "Is 'stale' a description of the bread?" }
+        ];
+
+        let questions = [];
+        let currentQuestionIdx = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        function shuffleQuestions() {
+            // Pick 10 random questions from the pool
+            const shuffled = [...questionPool].sort(() => 0.5 - Math.random());
+            questions = shuffled.slice(0, 10);
+        }
+
+        function initQuiz() {
+            if (currentQuestionIdx === 0 && !isAnswered) {
+                shuffleQuestions();
+            }
+
+            const q = questions[currentQuestionIdx];
+            isAnswered = false;
+            
+            // Progress
+            document.getElementById('progress-text').innerText = `Question ${currentQuestionIdx + 1} of ${questions.length}`;
+            document.getElementById('progress-bar').style.width = `${((currentQuestionIdx + 1) / questions.length) * 100}%`;
+            document.getElementById('score-badge').innerText = `Score: ${score}`;
+
+            // Sentence
+            const display = document.getElementById('sentence-display');
+            display.innerHTML = '';
+            q.sentence.split(' ').forEach(word => {
+                const span = document.createElement('span');
+                // Clean the word for comparison (removing punctuation)
+                const cleanWord = word.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+                if (cleanWord === cleanWord.toUpperCase() && cleanWord.length > 1) {
+                    span.className = "underline decoration-4 decoration-blue-300 underline-offset-4";
+                    span.innerText = word + " ";
+                } else {
+                    span.className = "font-normal text-slate-800";
+                    span.innerText = word + " ";
+                }
+                display.appendChild(span);
+            });
+
+            // Options
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "flex items-center justify-between p-4 rounded-xl border-2 font-semibold transition-all border-slate-200 hover:border-blue-400 hover:bg-blue-50 cursor-pointer text-slate-700 w-full";
+                btn.innerText = opt;
+                btn.onclick = () => handleSelect(idx);
+                container.appendChild(btn);
+            });
+
+            // Reset UI states
+            document.getElementById('feedback-area').classList.add('hidden');
+            document.getElementById('hint-text').classList.add('hidden');
+            document.getElementById('hint-wrapper').classList.remove('hidden');
+            document.getElementById('hint-toggle').innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lightbulb"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg> Need a hint?`;
+        }
+
+        function handleSelect(idx) {
+            if (isAnswered) return;
+            isAnswered = true;
+            const q = questions[currentQuestionIdx];
+            const buttons = document.getElementById('options-container').children;
+
+            if (idx === q.correct) {
+                score++;
+                buttons[idx].classList.replace('border-slate-200', 'border-green-500');
+                buttons[idx].classList.add('bg-green-50', 'text-green-700');
+                buttons[idx].innerHTML += `<svg class="text-green-600" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
+                document.getElementById('feedback-text').innerHTML = `<span class="font-bold uppercase mr-2 text-green-700">Correct!</span> ${q.rationale}`;
+                document.getElementById('feedback-area').classList.replace('border-red-100', 'border-green-100');
+                document.getElementById('feedback-area').classList.add('bg-green-50');
+            } else {
+                buttons[idx].classList.replace('border-slate-200', 'border-red-500');
+                buttons[idx].classList.add('bg-red-50', 'text-red-700');
+                buttons[idx].innerHTML += `<svg class="text-red-600" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>`;
+                
+                buttons[q.correct].classList.replace('border-slate-200', 'border-green-500');
+                buttons[q.correct].classList.add('bg-green-50', 'text-green-700');
+                
+                document.getElementById('feedback-text').innerHTML = `<span class="font-bold uppercase mr-2 text-red-700">Incorrect.</span> ${q.rationale}`;
+                document.getElementById('feedback-area').classList.remove('bg-green-50');
+                document.getElementById('feedback-area').classList.add('bg-red-50', 'border-red-100');
+            }
+
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].disabled = true;
+                if (i !== idx && i !== q.correct) {
+                    buttons[i].classList.add('opacity-60', 'border-slate-100', 'text-slate-400');
+                }
+            }
+
+            document.getElementById('feedback-area').classList.remove('hidden');
+            document.getElementById('hint-wrapper').classList.add('hidden');
+            document.getElementById('score-badge').innerText = `Score: ${score}`;
+        }
+
+        document.getElementById('next-btn').onclick = () => {
+            currentQuestionIdx++;
+            if (currentQuestionIdx < questions.length) {
+                initQuiz();
+            } else {
+                showResults();
+            }
+        };
+
+        function showResults() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            document.getElementById('final-score').innerText = `${score}/${questions.length}`;
+            
+            let msg = "";
+            if (score === 10) msg = "Perfect score! You're a verb master!";
+            else if (score >= 8) msg = "Great job! You really know your verbs.";
+            else if (score >= 5) msg = "Good effort! Keep practicing those verb types.";
+            else msg = "Keep studying! Try again to improve your score.";
+            document.getElementById('result-msg').innerText = msg;
+        }
+
+        document.getElementById('restart-btn').onclick = () => {
+            currentQuestionIdx = 0;
+            score = 0;
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            initQuiz();
+        };
+
+        document.getElementById('hint-toggle').onclick = () => {
+            const hintText = document.getElementById('hint-text');
+            const q = questions[currentQuestionIdx];
+            if (hintText.classList.contains('hidden')) {
+                hintText.innerHTML = `<strong>Hint:</strong> ${q.hint}`;
+                hintText.classList.remove('hidden');
+                document.getElementById('hint-toggle').innerText = "Hide Hint";
+            } else {
+                hintText.classList.add('hidden');
+                document.getElementById('hint-toggle').innerText = "Need a hint?";
+            }
+        };
+
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
